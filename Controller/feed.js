@@ -7,7 +7,6 @@ exports.getFeed = (req, res, next) => {
 exports.createPost = (req, res, next) => {
   const title = req.body.title;
   const content = req.body.content;
-  console.log(title,content)
   // post data in Databasee
   res.status(201).json({
     message: "Post is successfully",

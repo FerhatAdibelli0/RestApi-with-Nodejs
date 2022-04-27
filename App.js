@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const feedRoute = require("./Routes/feed");
 // const cors = require("cors");
