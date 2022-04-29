@@ -3,12 +3,9 @@ const route = express.Router();
 const feedController = require("../Controller/feed");
 
 // GET /admin/post
-route.get("/post", feedController.getFeed);
-
-// GET /admin/post
-route.get("/post", feedController.getFeed);
+route.get("/posts", feedController.getFeed);
 
 // POST /admin/posts
-route.post("/posts", feedController.createPost);
+route.post("/post", feedController.createPost);
 
 module.exports = route;

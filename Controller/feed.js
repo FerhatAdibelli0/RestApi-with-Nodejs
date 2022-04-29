@@ -1,6 +1,15 @@
 exports.getFeed = (req, res, next) => {
   res.status(200).json({
-    posts: [{ title: "Ferhats Design", content: "This is good practise " }],
+    posts: [
+      {
+        _id: "1",
+        title: "Ferhats Design",
+        content: "This is good practise ",
+        imageUrl: "images/indir.jpg",
+        creator: { name: "Ferhat" },
+        createdAt: new Date(),
+      },
+    ],
   });
 };
 
