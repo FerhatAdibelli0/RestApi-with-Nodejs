@@ -2,6 +2,10 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const feedRoute = require("./Routes/feed");
+
+const MONGO_URI =
+  "mongodb+srv://maxpayne35:qGBr7naSXYmEYnw@cluster0.sp51h.mongodb.net/messages?retryWrites=true&w=majority";
+
 // const cors = require("cors");
 
 const app = express();
@@ -19,4 +23,10 @@ app.use((req, res, next) => {
 
 app.use("/feed", feedRoute);
 
-app.listen(8000);
+
+mongoose
+  .connect(MONGO_URI)
+  .then((result) => {
+    app.listen(8000);
+  })
+  .catch((err) => console.log(err));
