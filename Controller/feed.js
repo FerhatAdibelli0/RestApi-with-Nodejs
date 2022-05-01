@@ -4,11 +4,21 @@ const fs = require("fs");
 const path = require("path");
 
 exports.getFeed = (req, res, next) => {
-  Post.find()
+  let totalItems;
+  const currentPage = req.query.page || 1;
+  const perPage = 2;
+  Post.countDocuments()
+    .then((amount) => {
+      totalItems = amount;
+      return Post.find()
+        .skip((currentPage - 1) * perPage)
+        .limit(perPage);
+    })
     .then((posts) => {
       res.status(200).json({
         message: "Successfully fetched",
         posts: posts,
+        totalItems: totalItems,
       });
     })
     .catch((err) => {
