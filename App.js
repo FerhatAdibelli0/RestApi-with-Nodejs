@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const feedRoute = require("./Routes/feed");
+const authRoute = require("./Routes/auth");
 const path = require("path");
 const multer = require("multer");
 const { v4: uuid } = require("uuid");
@@ -54,12 +55,14 @@ app.use((req, res, next) => {
 });
 
 app.use("/feed", feedRoute);
+app.use("/auth", authRoute);
 
 // ERROR HANDLING
 app.use((error, req, res, next) => {
   const status = error.statusCode || 500;
   const message = error.message;
-  res.status(status).json({ message: message });
+  const data = error.data;
+  res.status(status).json({ message: message, data: data });
 });
 
 mongoose
