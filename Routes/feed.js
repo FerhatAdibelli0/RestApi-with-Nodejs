@@ -7,6 +7,7 @@ const isAuth = require("../middleware/is-auth");
 // GET /admin/post
 route.get("/posts", isAuth, feedController.getFeed);
 
+
 // POST /admin/posts
 route.post(
   "/post",

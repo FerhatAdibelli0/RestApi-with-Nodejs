@@ -128,6 +128,11 @@ exports.updatePost = (req, res, next) => {
         error.statusCode = 404;
         throw error;
       }
+      if (post.creator.toString() !== req.userId) {
+        const error = new Error("Unauthorized for editing");
+        error.statusCode = 403;
+        throw error;
+      }
       if (imageUrl !== post.imageUrl) {
         clearImage(post.imageUrl);
       }
@@ -157,14 +162,23 @@ exports.deletePost = (req, res, next) => {
         error.statusCode = 404;
         throw error;
       }
+      if (post.creator.toString() !== req.userId) {
+        const error = new Error("Unauthorized for deleting");
+        error.statusCode = 403;
+        throw error;
+      }
       clearImage(post.imageUrl);
       return Post.findByIdAndRemove(postId);
     })
+    .then((post) => {
+      return User.findById(post.creator);
+    })
+    .then((user) => {
+      user.posts.pull(postId);
+      return user.save();
+    })
     .then((result) => {
-      return res.status(200).json({
-        message: "Successfully deleted",
-        post: result,
-      });
+      res.status(200).json({ message: "Successfully deleted" });
     })
     .catch((err) => {
       if (!err.statusCode) {
@@ -173,6 +187,8 @@ exports.deletePost = (req, res, next) => {
       next(err);
     });
 };
+
+
 
 const clearImage = (filePath) => {
   const fileDir = path.join(__dirname, "..", filePath);
