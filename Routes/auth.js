@@ -3,7 +3,6 @@ const route = express.Router();
 const { body } = require("express-validator");
 const authController = require("../Controller/auth");
 const User = require("../Model/user");
-const bcrypt = require("bcrypt");
 
 route.put(
   "/signup",
