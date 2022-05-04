@@ -3,6 +3,7 @@ const Post = require("../Model/post");
 const fs = require("fs");
 const path = require("path");
 const User = require("../Model/user");
+const io = require("../socket");
 
 exports.getFeed = async (req, res, next) => {
   const currentPage = req.query.page || 1;
@@ -12,6 +13,7 @@ exports.getFeed = async (req, res, next) => {
     const amount = await Post.countDocuments();
     const posts = await Post.find()
       .populate("creator")
+      .sort({createdAt:-1})
       .skip((currentPage - 1) * perPage)
       .limit(perPage);
 
@@ -58,6 +60,10 @@ exports.createPost = async (req, res, next) => {
     const user = await User.findById(req.userId);
     user.posts.push(post);
     const newUser = await user.save();
+    io.getIO().emit("postsChannel", {
+      action: "posting",
+      post: { ...post._doc, creator: { _id: req.userId, name: user.name } },
+    });
     res.status(201).json({
       message: "Post is successfully",
       post: post,
@@ -114,13 +120,13 @@ exports.updatePost = async (req, res, next) => {
   }
 
   try {
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId).populate("creator");
     if (!post) {
       const error = new Error("Post is not found");
       error.statusCode = 404;
       throw error;
     }
-    if (post.creator.toString() !== req.userId) {
+    if (post.creator._id.toString() !== req.userId) {
       const error = new Error("Unauthorized for editing");
       error.statusCode = 403;
       throw error;
@@ -132,6 +138,10 @@ exports.updatePost = async (req, res, next) => {
     post.content = content;
     post.imageUrl = imageUrl;
     const result = await post.save();
+    io.getIO().emit("postsChannel", {
+      action: "updating",
+      post: result,
+    });
     res.status(200).json({ message: "Successfully updated", post: result });
   } catch (err) {
     if (!err.statusCode) {
@@ -160,7 +170,10 @@ exports.deletePost = async (req, res, next) => {
     const user = await User.findById(postUser.creator);
     user.posts.pull(postId); // deleting post via pull
     await user.save();
-
+    io.getIO().emit("postsChannel", {
+      action: "deleting",
+      post: { _id: postId },
+    });
     res.status(200).json({ message: "Successfully deleted" });
   } catch (err) {
     if (!err.statusCode) {

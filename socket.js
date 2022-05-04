@@ -1,7 +1,6 @@
 let io;
 
 module.exports = {
-    
   init: (httpServer) => {
     return (io = require("socket.io")(httpServer, {
       cors: {
