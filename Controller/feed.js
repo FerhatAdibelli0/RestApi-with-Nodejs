@@ -13,7 +13,7 @@ exports.getFeed = async (req, res, next) => {
     const amount = await Post.countDocuments();
     const posts = await Post.find()
       .populate("creator")
-      .sort({createdAt:-1})
+      .sort({ createdAt: -1 })
       .skip((currentPage - 1) * perPage)
       .limit(perPage);
 
@@ -69,6 +69,7 @@ exports.createPost = async (req, res, next) => {
       post: post,
       creator: { _id: newUser._id, name: newUser.name },
     });
+    return newUser; // added for testing
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
