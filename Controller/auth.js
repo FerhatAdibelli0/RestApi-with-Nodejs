@@ -40,14 +40,15 @@ exports.login = async (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   let checkedUser;
-  const user = await User.findOne({ email: email });
-  if (!user) {
-    const error = new Error("User is not found");
-    error.statusCode = 404;
-    throw error;
-  }
-  checkedUser = user;
   try {
+    const user = await User.findOne({ email: email });
+    // Throw error normally cause it depends whether to be sync or async code
+    if (!user) {
+      const error = new Error("User is not found");
+      error.statusCode = 404;
+      throw error;
+    }
+    checkedUser = user;
     const isEqual = await bcrypt.compare(password, user.password);
 
     if (!isEqual) {
@@ -64,11 +65,13 @@ exports.login = async (req, res, next) => {
       { expiresIn: "1h" }
     );
     res.status(200).json({ token: token, userId: checkedUser._id.toString() });
+    return; // Added for testing with Mocha and Chai
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
     next(err);
+    return err; // Added for testing with Mocha and Chai
   }
 };
 
